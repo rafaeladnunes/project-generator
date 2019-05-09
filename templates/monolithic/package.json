@@ -1,0 +1,16 @@
+{
+  "name": "monolithic",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mysql2": "^1.6.5",
+    "sequelize": "^5.8.5",
+    "swagger-express": "^1.0.5",
+    "swagger-express-middleware": "^2.0.2"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^5.4.0"
+  }
+}
