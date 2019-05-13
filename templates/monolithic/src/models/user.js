@@ -3,8 +3,8 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
-    age: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: DataTypes.BOOLEAN,
+    age: DataTypes.INTEGER
   }, {
     underscored: true,
   });
