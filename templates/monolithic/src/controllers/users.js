@@ -10,5 +10,5 @@ module.exports = {
       console.error(error);
       res.status(error.status).json(error.message);
     }
-  }
-}
+  },
+};
