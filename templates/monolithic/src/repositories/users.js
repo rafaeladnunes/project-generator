@@ -2,7 +2,7 @@ const { User } = require('../models');
 
 module.exports = {
   get(id) {
-    return User.getByPk(id);
+    return User.findByPk(id);
   },
   update(id, obj) {
     return User.update(obj, {

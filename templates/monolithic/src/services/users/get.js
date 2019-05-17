@@ -11,7 +11,6 @@ module.exports = async (id) => {
 
     return buildResponse({ body: user });
   } catch (error) {
-    console.error(error);
-    throw new ErrorHandler();
+    throw new ErrorHandler(error || 'an-error-occurred', 422);
   }
 };
