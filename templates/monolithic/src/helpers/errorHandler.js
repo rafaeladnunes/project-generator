@@ -1,4 +1,3 @@
-
 module.exports = class ApplicationError extends Error {
   /**
    * @param  {string} message

@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.16.4",
     "mysql2": "^1.6.5",
     "sequelize": "^5.8.5",
@@ -24,6 +25,7 @@
     "start:dev": "NODE_ENV=development nodemon index.js",
     "db:migrate": "sequelize db:migrate --env $NODE_ENV --config src/config/config.json --migrations-path src/migrations/ --models-path src/models/ --seeders-path src/seeders/",
     "db:create": "sequelize db:create --config src/config/config.json --env $NODE_ENV",
-    "eslint": "eslint src"
+    "eslint": "eslint src",
+    "test": "NODE_ENV=test jest"
   }
 }
