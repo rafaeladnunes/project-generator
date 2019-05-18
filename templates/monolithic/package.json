@@ -26,6 +26,6 @@
     "db:migrate": "sequelize db:migrate --env $NODE_ENV --config src/config/config.json --migrations-path src/migrations/ --models-path src/models/ --seeders-path src/seeders/",
     "db:create": "sequelize db:create --config src/config/config.json --env $NODE_ENV",
     "eslint": "eslint src",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest --detectOpenHandles --forceExit"
   }
 }
