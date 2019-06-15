@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const shell = require('shelljs');
+const fs = require('fs');
 
 class Generator {
   contructor() {
@@ -21,7 +22,8 @@ class Generator {
     }
 
     this.menu = this.menu.bind(this);
-    this._generatePackageJSON = this._generatePackageJSON.bind(this);
+    this.generatePackageJSON = this.generatePackageJSON.bind(this);
+    this.generateProject = this.generateProject.bind(this);
   }
 
   async menu() {
@@ -54,7 +56,17 @@ class Generator {
         message: 'Choose a technology',
         choices: ['Serverless', 'Monolithic'],
       },
+      {
+        name: 'gitRepository',
+        message: 'git repository url:',
+      },
     ];
+
+    if (process.platform === 'win32') {
+      shell.exec('cls');
+    } else {
+      shell.exec('clear');
+    }
 
     try {
       this._responses = await inquirer.prompt(questions);
@@ -77,37 +89,38 @@ class Generator {
 
         this._responses = Object.assign(this._responses, responses);
       }
+
+      this._packageJSON = {
+        name: this._responses.name,
+        description: this._responses.description,
+        author: this._responses.author,
+        main: this._responses.entryPoint,
+      };
     } catch (error) {
-      console.error(error);
+      throw error;
     }
   }
 
-  _generatePackageJSON() {
-    const obj = {
-      name: this._responses.name,
-      description: this._responses.description,
-      author: this._responses.author,
-      main: this._responses.entryPoint,
-      dependencies: {},
-      devDependencies: {
-        jest: '^24.8.0',
-      },
-    };
+  generateProject() {
+    const projectPath = `./${this._packageJSON.name}`;
+    fs.mkdirSync(projectPath);
+    fs.writeFileSync(
+      `${projectPath}/package.json`,
+      JSON.stringify(this._packageJSON, null, 2),
+    );
+    shell.cd(projectPath);
+    shell.exec('npm install');
+
+    const packages = [];
+    const devDependencies = ['jest', 'pre-commit'];
 
     switch (this._responses.databaseTechnology) {
       case 'Sequelize':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          sequelize: '^5.8.5',
-        });
-
-        obj.devDependencies = Object.assign(obj.devDependencies, {
-          'sequelize-cli': '^5.4.0',
-        });
+        packages.push('sequelize');
+        packages.push('sequelize-cli');
         break;
       case 'Mongoose':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          mongoose: '^5.5.6',
-        });
+        packages.push('mongoose');
         break;
       default:
         break;
@@ -115,61 +128,62 @@ class Generator {
 
     switch (this._responses.database) {
       case 'MySQL':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          mysql2: '^1.6.5',
-        });
+        packages.push('mysql2');
         break;
       case 'PostgreSQL':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          pg: '^7.10.0',
-          'pg-hstore': '^2.3.2',
-        });
+        packages.push('pg');
+        packages.push('pg-hstore');
         break;
       case 'MSSQL':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          tedious: '^6.1.1',
-        });
+        packages.push(tedious);
         break;
       case 'MariaDB':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          mariadb: '^2.0.4',
-        });
+        packages.push('mariadb');
         break;
       case 'SQLite':
-        obj.dependencies = Object.assign(obj.dependencies, {
-          sqlite3: '^4.0.7',
-        });
+        packages.push('sqlite3');
         break;
       default:
         break;
     }
 
     if (this._responses.cloud === 'AWS') {
-      obj.devDependencies = Object.assign(obj.devDependencies, {
-        'serverless-domain-manager': '^2.6.13',
-        'serverless-iam-roles-per-function': '^1.0.1',
-        'serverless-offline': '^4.9.4',
-        gulp: '^4.0.1',
-      });
-
-      obj.dependencies = Object.assign(obj.dependencies, {
-        'aws-sdk': '^2.441.0',
-        serverless: '^0.0.2',
-      });
+      packages.push('serverless-domain-manager');
+      packages.push('serverless-iam-roles-per-function');
+      packages.push('serverless-offline');
+      packages.push('aws-sdk');
+      packages.push('serverless');
+      devDependencies.push('gulp');
     }
 
     if (this._responses.technology === 'Monolithic') {
-      obj.dependencies = Object.assign(obj.dependencies, {
-        'swagger-express': '^1.0.5',
-        'swagger-express-middleware': '^2.0.1',
-        'body-parser': '^1.18.3',
-        'bcrypt-nodejs': '0.0.3',
-        express: '^4.16.4',
-        nodemailer: '^5.1.1',
-      });
+      packages.push('swagger-express');
+      packages.push('swagger-express-middleware');
+      packages.push('body-parser');
+      packages.push('bcrypt-nodejs');
+      packages.push('express');
+      packages.push('nodemailer');
+      devDependencies.push('nodemon');
     }
 
-    this._packageJSON = obj;
+    if (shell.which('yarn')) {
+      shell.exec(`yarn add -D ${devDependencies.join(' ')}`);
+      shell.exec(`yarn add ${packages.join(' ')}`);
+      shell.exec('yarn global add gitflow');
+    } else {
+      shell.exec(`npm install --save-dev ${devDependencies.join(' ')}`);
+      shell.exec(`npm install --save ${packages.join(' ')}`);
+      shell.exec('npm install -g gitflow');
+    }
+
+    shell.exec('git init');
+
+    if (this._packageJSON.gitRepository !== '') {
+      console.log('GIT');
+      shell.exec(`git remote add origin ${this._packageJSON.gitRepository}`);
+    }
+
+    shell.exec('git flow init');
   }
 }
 

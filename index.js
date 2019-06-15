@@ -33,7 +33,7 @@
 //     shell.echo('Sorry, this script requires npm installed');
 //     shell.exit(1);
 //   }
-  
+
 //   if (!shell.which('git')) {
 //     shell.echo('Sorry, this script requires git installed');
 //     shell.exit(1);
@@ -78,8 +78,6 @@
 (async () => {
   const Generator = require('./src/generator');
   const generator = new Generator();
-
   await generator.menu();
-  generator._generatePackageJSON();
-  console.log(generator._packageJSON);
+  generator.generateProject();
 })();
