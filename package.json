@@ -17,5 +17,7 @@
     "tedious": "^6.1.1"
   },
   "bin": "./index.js",
-  "devDependencies": {}
+  "scripts": {
+    "generate": "NODE_PATH=src node index.js"
+  },
 }

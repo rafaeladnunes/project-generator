@@ -24,6 +24,7 @@ class Generator {
     this.menu = this.menu.bind(this);
     this.generatePackageJSON = this.generatePackageJSON.bind(this);
     this.generateProject = this.generateProject.bind(this);
+    this.copyTemplate = this.copyTemplate.bind(this);
   }
 
   async menu() {
@@ -31,6 +32,7 @@ class Generator {
       {
         name: 'name',
         message: 'What is project name?',
+        default: 'saila',
       },
       {
         name: 'description',
@@ -39,10 +41,12 @@ class Generator {
       {
         name: 'author',
         message: 'Who is the author?',
+        default: 'Nelson Sinis <nelsonsinis0@gmail.com>',
       },
       {
         name: 'entryPoint',
         message: 'entry point:',
+        default: 'index.js',
       },
       {
         type: 'list',
@@ -95,14 +99,48 @@ class Generator {
         description: this._responses.description,
         author: this._responses.author,
         main: this._responses.entryPoint,
+        repository: this._responses.gitRepository,
       };
     } catch (error) {
       throw error;
     }
   }
 
+  copyTemplate() {
+    const projectPath = `./${this._packageJSON.name}`;
+    const path = `/templates/${this._responses.technology.toLowerCase()}`;
+    const files = fs
+      .readdirSync(
+        `${path}/${
+          this._responses.cloud
+            ? this._responses.cloud.toLowerCase()
+            : this._responses.databaseTechnology.toLowerCase()
+        }`,
+      )
+      .filter((item) => !['sequelize', 'mongoose'].includes(item));
+
+      console.log(path);
+
+    files.forEach((file) => {
+      fs.copyFileSync(`${path}/${file}`, `${projectPath}/${file}`);
+    });
+    shell.cp('-r', `${path}/src`, projectPath);
+  }
+
   generateProject() {
     const projectPath = `./${this._packageJSON.name}`;
+
+    if (this._responses.technology === 'Monolithic') {
+      this._packageJSON = Object.assign(this._packageJSON, {
+        scripts: {
+          'start:dev': `NODE_ENV=development node ${
+            this._responses.entryPoint
+          }`,
+          start: `NODE_ENV=production node ${this._responses.entryPoint}`,
+        },
+      });
+    }
+
     fs.mkdirSync(projectPath);
     fs.writeFileSync(
       `${projectPath}/package.json`,
@@ -169,21 +207,20 @@ class Generator {
     if (shell.which('yarn')) {
       shell.exec(`yarn add -D ${devDependencies.join(' ')}`);
       shell.exec(`yarn add ${packages.join(' ')}`);
-      shell.exec('yarn global add gitflow');
     } else {
       shell.exec(`npm install --save-dev ${devDependencies.join(' ')}`);
       shell.exec(`npm install --save ${packages.join(' ')}`);
-      shell.exec('npm install -g gitflow');
     }
 
     shell.exec('git init');
 
     if (this._packageJSON.gitRepository !== '') {
-      console.log('GIT');
       shell.exec(`git remote add origin ${this._packageJSON.gitRepository}`);
     }
 
-    shell.exec('git flow init');
+    this.copyTemplate();
+    shell.exec('git add .');
+    shell.exec("git commit -m 'Initial commit'");
   }
 }
 
