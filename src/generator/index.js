@@ -83,7 +83,7 @@ class Generator {
 
   copyTemplate() {
     const projectPath = `./${this._packageJSON.name}`;
-    const path = '/templates/';
+    const path = './templates';
     const files = fs
       .readdirSync(path)
       .filter((item) => !['sequelize', 'mongoose'].includes(item));
@@ -97,14 +97,12 @@ class Generator {
   generateProject() {
     const projectPath = `./${this._packageJSON.name}`;
 
-    if (this._responses.technology === 'Monolithic') {
-      this._packageJSON = Object.assign(this._packageJSON, {
-        scripts: {
-          'start:dev': `NODE_ENV=development node ${this._responses.entryPoint}`,
-          start: `NODE_ENV=production node ${this._responses.entryPoint}`,
-        },
-      });
-    }
+    this._packageJSON = Object.assign(this._packageJSON, {
+      scripts: {
+        'start:dev': `NODE_ENV=development node ${this._responses.entryPoint}`,
+        start: `NODE_ENV=production node ${this._responses.entryPoint}`,
+      },
+    });
 
     fs.mkdirSync(projectPath);
     fs.writeFileSync(
@@ -150,24 +148,13 @@ class Generator {
         break;
     }
 
-    if (this._responses.cloud === 'AWS') {
-      packages.push('serverless-domain-manager');
-      packages.push('serverless-iam-roles-per-function');
-      packages.push('serverless-offline');
-      packages.push('aws-sdk');
-      packages.push('serverless');
-      devDependencies.push('gulp');
-    }
-
-    if (this._responses.technology === 'Monolithic') {
-      packages.push('swagger-express');
-      packages.push('swagger-express-middleware');
-      packages.push('body-parser');
-      packages.push('bcrypt-nodejs');
-      packages.push('express');
-      packages.push('nodemailer');
-      devDependencies.push('nodemon');
-    }
+    packages.push('swagger-express');
+    packages.push('swagger-express-middleware');
+    packages.push('body-parser');
+    packages.push('bcrypt-nodejs');
+    packages.push('express');
+    packages.push('nodemailer');
+    devDependencies.push('nodemon');
 
     if (shell.which('yarn')) {
       shell.exec(`yarn add -D ${devDependencies.join(' ')}`);
@@ -183,6 +170,7 @@ class Generator {
       shell.exec(`git remote add origin ${this._packageJSON.gitRepository}`);
     }
 
+    shell.cd('..');
     this.copyTemplate();
     shell.exec('git add .');
     shell.exec("git commit -m 'Initial commit'");
