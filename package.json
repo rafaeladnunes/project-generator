@@ -19,5 +19,5 @@
   "bin": "./index.js",
   "scripts": {
     "generate": "NODE_PATH=src node index.js"
-  },
+  }
 }

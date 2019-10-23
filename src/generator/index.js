@@ -55,12 +55,6 @@ class Generator {
         choices: ['Sequelize', 'Mongoose'],
       },
       {
-        type: 'list',
-        name: 'technology',
-        message: 'Choose a technology',
-        choices: ['Serverless', 'Monolithic'],
-      },
-      {
         name: 'gitRepository',
         message: 'git repository url:',
       },
@@ -74,25 +68,6 @@ class Generator {
 
     try {
       this._responses = await inquirer.prompt(questions);
-
-      if (this._responses.technology === 'Serverless') {
-        const responses = await inquirer.prompt([
-          {
-            type: 'list',
-            name: 'cloud',
-            message: 'Choose a cloud',
-            choices: ['AWS', 'Azure'],
-          },
-          {
-            type: 'list',
-            name: 'database',
-            message: 'Choose a database',
-            choices: ['MySQL', 'PostgreSQL', 'MSSQL', 'MariaDB', 'SQLite'],
-          },
-        ]);
-
-        this._responses = Object.assign(this._responses, responses);
-      }
 
       this._packageJSON = {
         name: this._responses.name,
@@ -108,18 +83,10 @@ class Generator {
 
   copyTemplate() {
     const projectPath = `./${this._packageJSON.name}`;
-    const path = `/templates/${this._responses.technology.toLowerCase()}`;
+    const path = '/templates/';
     const files = fs
-      .readdirSync(
-        `${path}/${
-          this._responses.cloud
-            ? this._responses.cloud.toLowerCase()
-            : this._responses.databaseTechnology.toLowerCase()
-        }`,
-      )
+      .readdirSync(path)
       .filter((item) => !['sequelize', 'mongoose'].includes(item));
-
-      console.log(path);
 
     files.forEach((file) => {
       fs.copyFileSync(`${path}/${file}`, `${projectPath}/${file}`);
@@ -133,9 +100,7 @@ class Generator {
     if (this._responses.technology === 'Monolithic') {
       this._packageJSON = Object.assign(this._packageJSON, {
         scripts: {
-          'start:dev': `NODE_ENV=development node ${
-            this._responses.entryPoint
-          }`,
+          'start:dev': `NODE_ENV=development node ${this._responses.entryPoint}`,
           start: `NODE_ENV=production node ${this._responses.entryPoint}`,
         },
       });
@@ -173,7 +138,7 @@ class Generator {
         packages.push('pg-hstore');
         break;
       case 'MSSQL':
-        packages.push(tedious);
+        packages.push('tedious');
         break;
       case 'MariaDB':
         packages.push('mariadb');
