@@ -1,4 +1,4 @@
-const app = require('./sequelize/src/config/express');
+const app = require('./src/config/express');
 
 const port = app.get('port');
 
