@@ -85,6 +85,7 @@ class Generator {
     const projectPath = `./${this._packageJSON.name}`;
     const path = './templates';
 
+    shell.cp('-r', `${path}/*`, projectPath);
     shell.cp('-r', `${path}/src`, projectPath);
   }
 
