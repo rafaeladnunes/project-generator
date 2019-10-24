@@ -88,10 +88,7 @@ class Generator {
       .readdirSync(path)
       .filter((item) => !['sequelize', 'mongoose'].includes(item));
 
-    files.forEach((file) => {
-      fs.copyFileSync(`${path}/${file}`, `${projectPath}/${file}`);
-    });
-    shell.cp('-r', `${path}/src`, projectPath);
+    shell.cp('-r', path, projectPath);
   }
 
   generateProject() {
