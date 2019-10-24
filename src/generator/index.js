@@ -84,9 +84,6 @@ class Generator {
   copyTemplate() {
     const projectPath = `./${this._packageJSON.name}`;
     const path = './templates';
-    const files = fs
-      .readdirSync(path)
-      .filter((item) => !['sequelize', 'mongoose'].includes(item));
 
     shell.cp('-r', `${path}/src`, projectPath);
   }
