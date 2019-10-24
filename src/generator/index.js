@@ -88,7 +88,7 @@ class Generator {
       .readdirSync(path)
       .filter((item) => !['sequelize', 'mongoose'].includes(item));
 
-    shell.cp('-r', path, projectPath);
+    shell.cp('-r', `${path}/src`, projectPath);
   }
 
   generateProject() {
